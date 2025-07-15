@@ -19,7 +19,7 @@ app.post('/chat', async (req, res) => {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "26ideas_faq_chatbot",
       messages: [{ role: "user", content: userMessage }],
     });
 
