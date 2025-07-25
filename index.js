@@ -18,7 +18,7 @@ app.post('/chat', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
-  const questionid= req.body.question.questionId;
+  const questionid= 1;
   
 console.log(threadid);
 console.log(questionid);
