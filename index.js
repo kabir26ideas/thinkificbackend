@@ -99,6 +99,9 @@ console.log(messages);
     
 console.log("last message");    
 console.log(lastMessage);
+
+
+console.log(lastMessage?.content[0]?.text?.value);    
     
 res.json({
   reply: lastMessage?.content[0]?.text?.value || "No reply try again",
