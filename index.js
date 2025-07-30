@@ -94,6 +94,12 @@ do{
 const messages = await openai.beta.threads.messages.list(threadid);
 const lastMessage = messages.data.find((msg)=> msg.role === "assistant");
 
+console.log("messages");
+console.log(messages);
+    
+console.log("last message");    
+console.log(lastMessage);
+    
 res.json({
   reply: lastMessage?.content[0]?.text?.value || "No reply try again",
  
