@@ -10,26 +10,26 @@ const YFP_NARATIVE_Q1= process.env.YFP_NARATIVE_Q1;
 const YFP_NARATIVE_Q3= process.env.YFP_NARATIVE_Q3;
 const YFP_NARATIVE_Q4= process.env.YFP_NARATIVE_Q4;
 const YFP_NARATIVE_Q5= process.env.YFP_NARATIVE_Q5;
-const YFP_NARATIVE_Q6AB= process.env.YFP_NARATIVE_Q6AB;
-const YFP_NARATIVE_Q7AB= process.env.YFP_NARATIVE_Q7AB;
+const YFP_NARATIVE_Q6= process.env.YFP_NARATIVE_Q6;
+const YFP_NARATIVE_Q7= process.env.YFP_NARATIVE_Q7;
 const YFP_NARATIVE_Q8= process.env.YFP_NARATIVE_Q8;
 const YFP_NARATIVE_Q9= process.env.YFP_NARATIVE_Q9;
 const YFP_NARATIVE_Q10= process.env.YFP_NARATIVE_Q10;
-const YFP_NARATIVE_Q11AB= process.env.YFP_NARATIVE_Q11AB;
+const YFP_NARATIVE_Q11= process.env.YFP_NARATIVE_Q11;
 const YFP_NARATIVE_Q12= process.env.YFP_NARATIVE_Q12;
-const YFP_NARATIVE_Q3ER= process.env.YFP_NARATIVE_Q3ER;
-const YFP_NARATIVE_Q4ER= process.env.YFP_NARATIVE_Q4ER;
-const YFP_NARATIVE_Q5ER= process.env.YFP_NARATIVE_Q5ER;
-const YFP_NARATIVE_Q6ER= process.env.YFP_NARATIVE_Q6ER;
-const YFP_NARATIVE_Q7ER= process.env.YFP_NARATIVE_Q7ER;
-const YFP_NARATIVE_Q8ER= process.env.YFP_NARATIVE_Q8ER;
-const YFP_NARATIVE_Q9ER= process.env.YFP_NARATIVE_Q9ER;
-const YFP_NARATIVE_Q10ER= process.env.YFP_NARATIVE_Q10ER;
-const YFP_NARATIVE_Q11ER= process.env.YFP_NARATIVE_Q11ER;
-const YFP_NARATIVE_Q12ER= process.env.YFP_NARATIVE_Q12ER;
-const YFP_NARATIVE_Q1OP= process.env.YFP_NARATIVE_Q1OP;
-const YFP_NARATIVE_Q2OP= process.env.YFP_NARATIVE_Q2OP;
-const YFP_NARATIVE_Q3OP= process.env.YFP_NARATIVE_Q3OP;
+const YFP_NARATIVE_Q13= process.env.YFP_NARATIVE_Q13;
+const YFP_NARATIVE_Q14= process.env.YFP_NARATIVE_Q14;
+const YFP_NARATIVE_Q15= process.env.YFP_NARATIVE_Q15;
+const YFP_NARATIVE_Q16= process.env.YFP_NARATIVE_Q16;
+const YFP_NARATIVE_Q17= process.env.YFP_NARATIVE_Q17;
+const YFP_NARATIVE_Q18= process.env.YFP_NARATIVE_Q18;
+const YFP_NARATIVE_Q19= process.env.YFP_NARATIVE_Q19;
+const YFP_NARATIVE_Q20= process.env.YFP_NARATIVE_Q20;
+const YFP_NARATIVE_Q21= process.env.YFP_NARATIVE_Q21;
+const YFP_NARATIVE_Q22= process.env.YFP_NARATIVE_Q22;
+const YFP_NARATIVE_Q23= process.env.YFP_NARATIVE_Q23;
+const YFP_NARATIVE_Q24= process.env.YFP_NARATIVE_Q24;
+const YFP_NARATIVE_Q25= process.env.YFP_NARATIVE_Q25;
 const YFP_NARATIVE_COMPILOR=process.env.YFP_NARATIVE_COMPILOR;
 
 
@@ -347,7 +347,7 @@ res.json({
 
 
 
-app.post('/chatq6AB', async (req, res) => {
+app.post('/chatq6', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -378,7 +378,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q6AB,
+  assistant_id: YFP_NARATIVE_Q6,
 });
 
 let runstatus; // run status for response 
@@ -428,7 +428,7 @@ res.json({
 
 
 
-app.post('/chatq7AB', async (req, res) => {
+app.post('/chatq7', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -459,7 +459,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q7AB,
+  assistant_id: YFP_NARATIVE_Q7,
 });
 
 let runstatus; // run status for response 
@@ -732,7 +732,7 @@ res.json({
 });
 
 
-app.post('/chatq11AB', async (req, res) => {
+app.post('/chatq11', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -763,7 +763,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q11AB,
+  assistant_id: YFP_NARATIVE_Q11,
 });
 
 let runstatus; // run status for response 
@@ -885,7 +885,7 @@ res.json({
 });
 
 
-app.post('/chatq3er', async (req, res) => {
+app.post('/chatq13', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -916,7 +916,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q3ER,
+  assistant_id: YFP_NARATIVE_Q13,
 });
 
 let runstatus; // run status for response 
@@ -960,7 +960,7 @@ res.json({
 
 });
 
-app.post('/chatq4er', async (req, res) => {
+app.post('/chatq14', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -991,7 +991,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q4ER,
+  assistant_id: YFP_NARATIVE_Q14,
 });
 
 let runstatus; // run status for response 
@@ -1035,7 +1035,7 @@ res.json({
 
 });
 
-app.post('/chatq5er', async (req, res) => {
+app.post('/chatq15', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1066,7 +1066,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q5ER,
+  assistant_id: YFP_NARATIVE_Q15,
 });
 
 let runstatus; // run status for response 
@@ -1110,7 +1110,7 @@ res.json({
 
 });
 
-app.post('/chatq6er', async (req, res) => {
+app.post('/chatq16', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1141,7 +1141,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q6ER,
+  assistant_id: YFP_NARATIVE_Q16,
 });
 
 let runstatus; // run status for response 
@@ -1185,7 +1185,7 @@ res.json({
 
 });
 
-app.post('/chatq7er', async (req, res) => {
+app.post('/chatq17', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1216,7 +1216,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q7ER,
+  assistant_id: YFP_NARATIVE_Q17,
 });
 
 let runstatus; // run status for response 
@@ -1261,7 +1261,7 @@ res.json({
 });
 
 
-app.post('/chatq8er', async (req, res) => {
+app.post('/chatq18', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1292,7 +1292,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q8ER,
+  assistant_id: YFP_NARATIVE_Q18,
 });
 
 let runstatus; // run status for response 
@@ -1336,7 +1336,7 @@ res.json({
 
 });
 
-app.post('/chatq9er', async (req, res) => {
+app.post('/chatq19', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1367,7 +1367,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q9ER,
+  assistant_id: YFP_NARATIVE_Q19,
 });
 
 let runstatus; // run status for response 
@@ -1411,7 +1411,7 @@ res.json({
 
 });
 
-app.post('/chatq10er', async (req, res) => {
+app.post('/chatq20', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1442,7 +1442,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q10ER,
+  assistant_id: YFP_NARATIVE_Q20,
 });
 
 let runstatus; // run status for response 
@@ -1486,7 +1486,7 @@ res.json({
 
 });
 
-app.post('/chatq11er', async (req, res) => {
+app.post('/chatq21', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1517,7 +1517,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q11ER,
+  assistant_id: YFP_NARATIVE_Q21,
 });
 
 let runstatus; // run status for response 
@@ -1561,7 +1561,7 @@ res.json({
 
 });
 
-app.post('/chatq12er', async (req, res) => {
+app.post('/chatq22', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1592,7 +1592,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q12ER,
+  assistant_id: YFP_NARATIVE_Q22,
 });
 
 let runstatus; // run status for response 
@@ -1636,7 +1636,7 @@ res.json({
 
 });
 
-app.post('/chatq1op', async (req, res) => {
+app.post('/chatq23', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1667,7 +1667,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q1OP,
+  assistant_id: YFP_NARATIVE_Q23,
 });
 
 let runstatus; // run status for response 
@@ -1711,7 +1711,7 @@ res.json({
 
 });
 
-app.post('/chatq2op', async (req, res) => {
+app.post('/chatq24', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1742,7 +1742,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q2OP,
+  assistant_id: YFP_NARATIVE_Q24,
 });
 
 let runstatus; // run status for response 
@@ -1786,7 +1786,7 @@ res.json({
 
 });
 
-app.post('/chatq3op', async (req, res) => {
+app.post('/chatq25', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
@@ -1817,7 +1817,7 @@ await openai.beta.threads.messages.create(threadid, {
 });
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_Q3OP,
+  assistant_id: YFP_NARATIVE_Q25,
 });
 
 let runstatus; // run status for response 
