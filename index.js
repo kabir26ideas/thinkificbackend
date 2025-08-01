@@ -1872,8 +1872,8 @@ res.json({
 
 
 app.post('/chatcompile', async (req, res) => {
-  console.log("test /chat");
-  const userMessage = req.body.message;
+  console.log("test /chatcompile");
+   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
   // const questionid= 1;
   
@@ -1894,23 +1894,28 @@ console.log(threadid);
 
   try {
 
+// create the message 
+
 await openai.beta.threads.messages.create(threadid, {
   role: "user",
-  content: `Answer: ${userMessage}`,
+  content: userMessage,
 
 
 });
+
+// call the assistant
 
 const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: YFP_NARATIVE_COMPILOR,
+  assistant_id: "asst_wI3mdEwXH0bwgOd24P7dFxvY",
 });
 
+console.log("running status");
 let runstatus; // run status for response 
 let attempts = 0;
 const maxAttempts = 60;// max attempts or timeout seconds
 do{
   runstatus= await openai.beta.threads.runs.retrieve(threadid,run.id);
-   console.log(runstatus);
+  //  console.log(runstatus);
   if(runstatus.status === "completed") break;
   await new Promise((resolve) => setTimeout(resolve,1000));
   attempts++;
@@ -1919,15 +1924,48 @@ do{
    attempts < maxAttempts);
 
 
-//fetching response
+
+
+
+  
+
+
 
 const messages = await openai.beta.threads.messages.list(threadid);
-const lastMessage = messages.data.find((msg)=> msg.role === "assistant");
 
-res.json({
-  reply: lastMessage?.content[0]?.text?.value || "No reply try again",
- 
-});
+const assistantMessages = messages.data.filter(msg => msg.role === "assistant");
+
+let pdfFileId = null;
+
+
+if (
+  assistantMessages.length > 0 &&
+  assistantMessages[0].attachments &&
+  assistantMessages[0].attachments.length > 0 &&
+  assistantMessages[0].attachments[0].file_id
+)
+{
+pdfFileId=assistantMessages[0].attachments[0].file_id;
+        console.log("✅ Found PDF file_id:", pdfFileId);
+}else{
+    console.log("❌ No PDF attachment found in the newest assistant message.");
+
+}
+
+
+
+
+
+//gettings pdf from file and sending it across
+
+const response = await openai.files.content(pdfFileId);
+
+    // Set headers for PDF
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=output.pdf");
+
+    // Pipe the readable stream to response
+    response.body.pipe(res);
 
   } catch (err) {
     console.error(err);
