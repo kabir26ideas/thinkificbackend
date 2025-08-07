@@ -2,6 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
+import PDFMerger from 'pdf-merger-js';
+import fs from 'fs';
+import puppeteer from 'puppeteer';
+import { parse } from 'node-html-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 dotenv.config();
 
 const app = express();
@@ -47,7 +58,7 @@ app.post('/chatq1', async (req, res) => {
   const threadid= req.body.user.threadId;
   // const questionid= 1;
   
-console.log(threadid);
+// console.log(threadid);
 // console.log(questionid);
   if (!userMessage) {
     return res.status(400).json({ reply: "Message is required." });
@@ -1871,118 +1882,99 @@ res.json({
 });
 
 
+
+
+
+
+
+
+
 app.post('/chatcompile', async (req, res) => {
   console.log("test /chatcompile");
-   const userMessage = req.body.message;
-  const threadid= req.body.user.threadId;
-  // const questionid= 1;
-  
-console.log(threadid);
-// console.log(questionid);
+  let userMessage = req.body.message;
+  const threadid = req.body.user.threadId;
+
   if (!userMessage) {
     return res.status(400).json({ reply: "Message is required." });
   }
 
-  if(!threadid){
+  if (!threadid) {
     return res.status(400).json({ reply: "threadid is required" });
-  //make a method to update thread id if no threadid is found?
   }
-
-  // if(!questionid){
-  //   return res.status(400).json({ reply: "questionid is required" });
-  // }
 
   try {
 
-// create the message 
-
-await openai.beta.threads.messages.create(threadid, {
-  role: "user",
-  content: userMessage,
+    // const filePath = await createPdfFromSections(sections);
+// res.sendFile(filePath);
 
 
-});
+    const ExecutiveSummary = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y", "executive_summary");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const NorthStar = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y", "north_star");
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-// call the assistant
+    const ProblemStatement = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y", "problem_solution");
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-const run = await openai.beta.threads.runs.create(threadid,{
-  assistant_id: "asst_wI3mdEwXH0bwgOd24P7dFxvY",
-});
+    const SalesModule = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y", "sales_module", );
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
-console.log("running status");
-let runstatus; // run status for response 
-let attempts = 0;
-const maxAttempts = 60;// max attempts or timeout seconds
-do{
-  runstatus= await openai.beta.threads.runs.retrieve(threadid,run.id);
-  //  console.log(runstatus);
-  if(runstatus.status === "completed") break;
-  await new Promise((resolve) => setTimeout(resolve,1000));
-  attempts++;
-} while ((runstatus.status === "queued" ||
-   runstatus.status === "in_progress") && 
-   attempts < maxAttempts);
+    const PeopleModule = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y","people_module" );
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
+    const FinancialViability = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y","financial_viability" );
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
+    const Conclusion = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y","conclusions" );
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
+    const Bibliography = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y", "annexures_bibliography");
+await new Promise(resolve => setTimeout(resolve, 1000));
 
 
-  
+        const sections = [
+      { title: "Executive Summary", text: ExecutiveSummary },
+      { title: "North Star", text: NorthStar },
+      { title: "Problem Statement", text: ProblemStatement },
+      { title: "Sales Module", text: SalesModule },
+      { title: "People Module", text: PeopleModule },
+      { title: "Financial Viability", text: FinancialViability },
+      { title: "Conclusion", text: Conclusion },
+      { title: "Bibliography", text: Bibliography },
+    ];
+
+    let filePath = await createPdfFromSections(sections);
+
+//     if (!sections.every(s => s.text.startsWith('<h1>'))) {
+//   throw new Error('One or more sections did not return valid HTML');
+// }
+
+        let pdfBuffer = await createPdfFromSections(sections);
+
+  //  console.log("PDF Buffer Start:", pdfBuffer.slice(0, 8).toString('utf8'));
 
 
+    // res.setHeader("Content-Type", "application/pdf");
+    // res.setHeader("Content-Disposition", "inline; filename=merged.pdf");
+    // res.send(pdfBuffer);
 
-const messages = await openai.beta.threads.messages.list(threadid);
-
-const assistantMessages = messages.data.filter(msg => msg.role === "assistant");
-
-let pdfFileId = null;
-
-
-if (
-  assistantMessages.length > 0 &&
-  assistantMessages[0].attachments &&
-  assistantMessages[0].attachments.length > 0 &&
-  assistantMessages[0].attachments[0].file_id
-)
-{
-pdfFileId=assistantMessages[0].attachments[0].file_id;
-        console.log("✅ Found PDF file_id:", pdfFileId);
-}else{
-    console.log("❌ No PDF attachment found in the newest assistant message.");
-
-}
+//     res.setHeader("Content-Type", "application/pdf");
+// res.setHeader("Content-Disposition", "inline; filename=proposal.pdf");
+// res.send(pdfBuffer);
 
 
+// res.setHeader("Content-Type", "application/pdf");
+// res.setHeader("Content-Disposition", "inline; filename=proposal.pdf");
+res.sendFile(filePath);
 
 
-
-//gettings pdf from file and sending it across
-
-const response = await openai.files.content(pdfFileId);
-
-    // Set headers for PDF
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; filename=output.pdf");
-
-    // Pipe the readable stream to response
-    response.body.pipe(res);
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ reply: "Failed to get response from OpenAI." });
   }
+}); 
 
-
-
-
-
-
-
-  
-
-
-
-});
 
 
 
@@ -1990,3 +1982,205 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server listening on port ${PORT}`);
 });
+
+
+async function getPdfBufferFromAssistant(threadId, assistantId, mode) {
+
+
+
+
+  console.log("thread id ", threadId);
+  console.log("assistant id", assistantId)
+
+
+  await openai.beta.threads.messages.create(threadId, {
+  role: "user",
+  // content: ("with the data in the past convesation create a detailed text as described in your system instructions around 850-1000 words. only output the text nothing else. the mode for this request is " ,mode),
+  content: `With the data in the previous conversation, create a detailed HTML-formatted section of around 1000 words as described in your system instructions. The mode for this request is: ${mode}`,
+
+});
+
+  const run = await openai.beta.threads.runs.create(threadId, {
+    assistant_id: assistantId,
+    // instructions: northStarPrompt,
+  });
+
+  // Step 2: Wait until the run completes
+  let status, attempts = 0;
+  const maxAttempts = 60;
+  do {
+    status = await openai.beta.threads.runs.retrieve(threadId, run.id);
+    if (status.status === "completed") break;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    attempts++;
+  } while ((status.status === "queued" || status.status === "in_progress") && attempts < maxAttempts);
+
+
+  const messages = await openai.beta.threads.messages.list(threadId);
+// console.log(messages);
+  const assistantMessage = messages.data.find(
+    msg => msg.run_id === run.id && msg.role === "assistant"
+  );
+
+  // if (!assistantMessage || !assistantMessage.attachments?.[0]?.file_id) {
+  //   throw new Error(`❌ No PDF found for assistant ${assistantId}`);
+  // }
+
+  // Step 5: Download the PDF file and convert to buffer
+  // const fileId = assistantMessage.attachments[0].file_id;
+  // console.log(fileId," id sent back");
+  // const response = await openai.files.content(fileId);
+  // return Buffer.from(await response.arrayBuffer());
+
+  // return text
+
+
+  if(!assistantMessage || !assistantMessage.content?.[0]?.text?.value){
+throw new Error(`No text response for mode "${mode}" in assistant ${assistantId} | thread: ${threadId}`);
+  }
+
+
+  console.log(assistantMessage.content[0].text.value)
+  return assistantMessage.content[0].text.value;
+}
+
+
+
+
+export async function createPdfFromSections(sections) {
+  // const pdfDoc = await PDFDocument.create();
+  // const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  // const fontSize = 12;
+  // const margin = 50;
+  // const lineHeight = fontSize + 4;
+
+  // for (const section of sections) {
+  //   let page = pdfDoc.addPage();
+  //   let { width, height } = page.getSize();
+  //   let y = height - margin;
+
+  //   // const lines = wrapTextByWidth(`${section.title}\n\n${section.text}`, 90);
+  //   let lines = wrapTextByWidth(`${section.title}\n\n${section.text}`, font, fontSize, width - 2 * margin);
+
+
+  //   for (const line of lines) {
+  //     if (y < margin) {
+  //       page = pdfDoc.addPage();
+  //       y = height - margin;
+  //     }
+
+  //     page.drawText(line, {
+  //       x: margin,
+  //       y,
+  //       size: fontSize,
+  //       font,
+  //       color: rgb(0, 0, 0),
+  //     });
+
+  //     y -= lineHeight;
+  //   }
+
+  //   // Always start the next section on a clean page
+  //   pdfDoc.addPage();
+  // }
+
+  // // Remove last empty page
+  // pdfDoc.removePage(pdfDoc.getPageCount() - 1);
+
+  // const pdfBytes = await pdfDoc.save();
+  // return Buffer.from(pdfBytes);
+
+
+
+
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+
+  const page = await browser.newPage();
+
+  const fullHTML = `
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+        <style>
+          body { font-family: Arial, sans-serif; padding: 40px; line-height: 1.6; }
+          h1 { font-size: 24px; margin-top: 40px; }
+          h2 { font-size: 18px; margin-top: 20px; }
+          p { margin-bottom: 12px; }
+          ul { margin-bottom: 12px; padding-left: 20px; }
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+          }
+          th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+          }
+          thead {
+            background-color: #f5f5f5;
+          }
+          .section {
+            page-break-after: always;
+          }
+        </style>
+      </head>
+      <body>
+        ${sections.map(s => `<div class="section">${s.text}</div>`).join('\n')}
+      </body>
+    </html>
+  `;
+
+
+
+fs.writeFileSync('debug_output.html', fullHTML);
+
+// let root = parse(fullHTML);
+
+// if (!root) {
+//   fs.writeFileSync('broken_debug.html', fullHTML);
+//   throw new Error("HTML parsing failed – check broken_debug.html");
+// }
+
+  // await page.setContent(fullHTML, { waitUntil: 'networkidle0' });
+  await page.setContent(fullHTML, { waitUntil: 'domcontentloaded' });
+
+
+  let pdfBuffer = await page.pdf({
+    format: 'A4',
+    printBackground: true,
+    margin: {
+      top: '30px',
+      bottom: '30px',
+      left: '40px',
+      right: '40px'
+    }
+  });
+
+  console.log("PDF Buffer Start:", pdfBuffer.slice(0, 8).toString('utf8'));
+
+
+  await browser.close();
+
+  const filePath = path.resolve(__dirname, 'debug_output.pdf');
+fs.writeFileSync(filePath, pdfBuffer);
+console.log("Saved PDF to:", filePath);
+
+  return filePath;
+
+
+  // fs.writeFileSync('debug_output.pdf', pdfBuffer);
+
+  // if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
+  //   throw new Error('Failed to generate a valid PDF buffer');
+  // }
+
+  // return pdfBuffer;
+}
+
+
+
