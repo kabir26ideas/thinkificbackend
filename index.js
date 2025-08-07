@@ -2,8 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import { OpenAI } from 'openai';
 import dotenv from 'dotenv';
+import PDFMerger from 'pdf-merger-js';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
+import { parse } from 'node-html-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -1733,17 +1735,22 @@ app.post('/chatq24', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
+  // const questionid= 1;
   
 console.log(threadid);
+// console.log(questionid);
   if (!userMessage) {
     return res.status(400).json({ reply: "Message is required." });
   }
 
   if(!threadid){
     return res.status(400).json({ reply: "threadid is required" });
+  //make a method to update thread id if no threadid is found?
   }
 
- 
+  // if(!questionid){
+  //   return res.status(400).json({ reply: "questionid is required" });
+  // }
 
   try {
 
@@ -1758,9 +1765,9 @@ const run = await openai.beta.threads.runs.create(threadid,{
   assistant_id: YFP_NARATIVE_Q24,
 });
 
-let runstatus; 
+let runstatus; // run status for response 
 let attempts = 0;
-const maxAttempts = 60;
+const maxAttempts = 60;// max attempts or timeout seconds
 do{
   runstatus= await openai.beta.threads.runs.retrieve(threadid,run.id);
    console.log(runstatus);
@@ -1772,6 +1779,7 @@ do{
    attempts < maxAttempts);
 
 
+//fetching response
 
 const messages = await openai.beta.threads.messages.list(threadid);
 const lastMessage = messages.data.find((msg)=> msg.role === "assistant");
@@ -1802,8 +1810,10 @@ app.post('/chatq25', async (req, res) => {
   console.log("test /chat");
   const userMessage = req.body.message;
   const threadid= req.body.user.threadId;
+  // const questionid= 1;
   
 console.log(threadid);
+// console.log(questionid);
   if (!userMessage) {
     return res.status(400).json({ reply: "Message is required." });
   }
@@ -1813,7 +1823,9 @@ console.log(threadid);
   //make a method to update thread id if no threadid is found?
   }
 
- 
+  // if(!questionid){
+  //   return res.status(400).json({ reply: "questionid is required" });
+  // }
 
   try {
 
@@ -1842,6 +1854,7 @@ do{
    attempts < maxAttempts);
 
 
+//fetching response
 
 const messages = await openai.beta.threads.messages.list(threadid);
 const lastMessage = messages.data.find((msg)=> msg.role === "assistant");
@@ -1891,7 +1904,8 @@ app.post('/chatcompile', async (req, res) => {
 
   try {
 
- 
+    // const filePath = await createPdfFromSections(sections);
+// res.sendFile(filePath);
 
 
     const ExecutiveSummary = await getPdfBufferFromAssistant(threadid, "asst_V0ZyALXY42gy41jMNXkdHy5Y", "executive_summary");
@@ -1931,11 +1945,26 @@ await new Promise(resolve => setTimeout(resolve, 1000));
 
     let filePath = await createPdfFromSections(sections);
 
-
+//     if (!sections.every(s => s.text.startsWith('<h1>'))) {
+//   throw new Error('One or more sections did not return valid HTML');
+// }
 
         let pdfBuffer = await createPdfFromSections(sections);
 
- 
+  //  console.log("PDF Buffer Start:", pdfBuffer.slice(0, 8).toString('utf8'));
+
+
+    // res.setHeader("Content-Type", "application/pdf");
+    // res.setHeader("Content-Disposition", "inline; filename=merged.pdf");
+    // res.send(pdfBuffer);
+
+//     res.setHeader("Content-Type", "application/pdf");
+// res.setHeader("Content-Disposition", "inline; filename=proposal.pdf");
+// res.send(pdfBuffer);
+
+
+// res.setHeader("Content-Type", "application/pdf");
+// res.setHeader("Content-Disposition", "inline; filename=proposal.pdf");
 res.sendFile(filePath);
 
 
@@ -1966,14 +1995,17 @@ async function getPdfBufferFromAssistant(threadId, assistantId, mode) {
 
   await openai.beta.threads.messages.create(threadId, {
   role: "user",
+  // content: ("with the data in the past convesation create a detailed text as described in your system instructions around 850-1000 words. only output the text nothing else. the mode for this request is " ,mode),
   content: `With the data in the previous conversation, create a detailed HTML-formatted section of around 1000 words as described in your system instructions. The mode for this request is: ${mode}`,
 
 });
 
   const run = await openai.beta.threads.runs.create(threadId, {
     assistant_id: assistantId,
+    // instructions: northStarPrompt,
   });
 
+  // Step 2: Wait until the run completes
   let status, attempts = 0;
   const maxAttempts = 60;
   do {
@@ -1985,11 +2017,22 @@ async function getPdfBufferFromAssistant(threadId, assistantId, mode) {
 
 
   const messages = await openai.beta.threads.messages.list(threadId);
+// console.log(messages);
   const assistantMessage = messages.data.find(
     msg => msg.run_id === run.id && msg.role === "assistant"
   );
 
-  
+  // if (!assistantMessage || !assistantMessage.attachments?.[0]?.file_id) {
+  //   throw new Error(`❌ No PDF found for assistant ${assistantId}`);
+  // }
+
+  // Step 5: Download the PDF file and convert to buffer
+  // const fileId = assistantMessage.attachments[0].file_id;
+  // console.log(fileId," id sent back");
+  // const response = await openai.files.content(fileId);
+  // return Buffer.from(await response.arrayBuffer());
+
+  // return text
 
 
   if(!assistantMessage || !assistantMessage.content?.[0]?.text?.value){
@@ -2005,26 +2048,56 @@ throw new Error(`No text response for mode "${mode}" in assistant ${assistantId}
 
 
 export async function createPdfFromSections(sections) {
- 
+  // const pdfDoc = await PDFDocument.create();
+  // const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  // const fontSize = 12;
+  // const margin = 50;
+  // const lineHeight = fontSize + 4;
+
+  // for (const section of sections) {
+  //   let page = pdfDoc.addPage();
+  //   let { width, height } = page.getSize();
+  //   let y = height - margin;
+
+  //   // const lines = wrapTextByWidth(`${section.title}\n\n${section.text}`, 90);
+  //   let lines = wrapTextByWidth(`${section.title}\n\n${section.text}`, font, fontSize, width - 2 * margin);
+
+
+  //   for (const line of lines) {
+  //     if (y < margin) {
+  //       page = pdfDoc.addPage();
+  //       y = height - margin;
+  //     }
+
+  //     page.drawText(line, {
+  //       x: margin,
+  //       y,
+  //       size: fontSize,
+  //       font,
+  //       color: rgb(0, 0, 0),
+  //     });
+
+  //     y -= lineHeight;
+  //   }
+
+  //   // Always start the next section on a clean page
+  //   pdfDoc.addPage();
+  // }
+
+  // // Remove last empty page
+  // pdfDoc.removePage(pdfDoc.getPageCount() - 1);
+
+  // const pdfBytes = await pdfDoc.save();
+  // return Buffer.from(pdfBytes);
 
 
 
-const browser = await puppeteer.launch({
-  headless: 'new',
-  args: [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-gpu',
-    '--single-process',
-    '--no-zygote'
-  ]
-});
 
-  // const browser = await puppeteer.launch({
-  //   headless: true,
-  //   args: ['--no-sandbox', '--disable-setuid-sandbox']
-  // });
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
 
   const page = await browser.newPage();
 
@@ -2066,7 +2139,14 @@ const browser = await puppeteer.launch({
 
 fs.writeFileSync('debug_output.html', fullHTML);
 
+// let root = parse(fullHTML);
 
+// if (!root) {
+//   fs.writeFileSync('broken_debug.html', fullHTML);
+//   throw new Error("HTML parsing failed – check broken_debug.html");
+// }
+
+  // await page.setContent(fullHTML, { waitUntil: 'networkidle0' });
   await page.setContent(fullHTML, { waitUntil: 'domcontentloaded' });
 
 
@@ -2093,7 +2173,13 @@ console.log("Saved PDF to:", filePath);
   return filePath;
 
 
+  // fs.writeFileSync('debug_output.pdf', pdfBuffer);
 
+  // if (!pdfBuffer || !Buffer.isBuffer(pdfBuffer)) {
+  //   throw new Error('Failed to generate a valid PDF buffer');
+  // }
+
+  // return pdfBuffer;
 }
 
 
